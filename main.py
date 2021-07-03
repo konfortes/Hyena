@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from telegram.bot import BotCommand
 from telegram import Update, ForceReply
 from telegram.ext import (
     Updater,
@@ -30,6 +31,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+bot_commands = [
+    "start",
+    "help",
+]
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -53,6 +59,15 @@ def echo(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(update.message.text)
 
 
+def setCommands(updater: Updater) -> None:
+    """Sets the bot commands"""
+    commands = [
+        BotCommand("help", "Get help"),
+        BotCommand("start", "Start conversation"),
+    ]
+    updater.bot.set_my_commands(commands)
+
+
 def main() -> None:
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -67,6 +82,8 @@ def main() -> None:
 
     # on non command i.e message - echo the message on Telegram
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+
+    setCommands(updater)
 
     # Start the Bot
     updater.start_polling()
