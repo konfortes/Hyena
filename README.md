@@ -2,7 +2,7 @@
 
 ![hyena](./public/hyena.jpeg)
 
-Hyena is a telegram bot that helps to digest visual and vocal input into Notion's GTD inbox.
+Hyena is a telegram bot that helps digesting visual and vocal input into Notion's GTD inbox.
 
 ## Environment Variables
 
