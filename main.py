@@ -12,6 +12,7 @@ bot.
 import os
 import logging
 from dotenv import load_dotenv
+from notion import Notion
 
 load_dotenv()
 
@@ -24,6 +25,8 @@ from telegram.ext import (
     Filters,
     CallbackContext,
 )
+
+notion = Notion(os.environ["NOTION_API_TOKEN"])
 
 # Enable logging
 logging.basicConfig(
@@ -54,9 +57,10 @@ def help_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("Help!")
 
 
-def echo(update: Update, context: CallbackContext) -> None:
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
+def digest(update: Update, context: CallbackContext) -> None:
+    """Digests messages into Notion GTD inbox"""
+    # update.message.reply_text(update.message.text)
+    notion.add_page(update.message.text, os.environ["NOTION_DATABASE_ID"])
 
 
 def setCommands(updater: Updater) -> None:
@@ -81,7 +85,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("help", help_command))
 
     # on non command i.e message - echo the message on Telegram
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, digest))
 
     setCommands(updater)
 
