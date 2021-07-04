@@ -2,3 +2,4 @@ black==21.6b0
 python-dotenv==0.18.0
 python-telegram-bot==13.7
 requests==2.25.1
+boto3==1.17.105

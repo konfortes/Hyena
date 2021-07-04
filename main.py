@@ -35,11 +35,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-bot_commands = [
-    "start",
-    "help",
-]
-
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -65,10 +60,16 @@ def digest(update: Update, context: CallbackContext) -> None:
 
 def setCommands(updater: Updater) -> None:
     """Sets the bot commands"""
+    dispatcher = updater.dispatcher
+
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("help", help_command))
+
     commands = [
         BotCommand("help", "Get help"),
         BotCommand("start", "Start conversation"),
     ]
+
     updater.bot.set_my_commands(commands)
 
 
@@ -77,15 +78,10 @@ def main() -> None:
     # Create the Updater and pass it your bot's token.
     updater = Updater(os.environ["TELEGRAM_BOT_TOKEN"])
 
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
-
-    # on different commands - answer in Telegram
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
-
     # on non command i.e message - echo the message on Telegram
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, digest))
+    updater.dispatcher.add_handler(
+        MessageHandler(Filters.text & ~Filters.command, digest)
+    )
 
     setCommands(updater)
 
