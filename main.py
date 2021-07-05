@@ -9,29 +9,23 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import os
 import logging
+import os
+
 from dotenv import load_dotenv
+
 from notion import Notion
 
 load_dotenv()
 
+from telegram import ForceReply, Update
 from telegram.bot import BotCommand
-from telegram import Update, ForceReply
-from telegram.ext import (
-    Updater,
-    CommandHandler,
-    MessageHandler,
-    Filters,
-    CallbackContext,
-)
+from telegram.ext import CallbackContext, CommandHandler, Filters, MessageHandler, Updater
 
 notion = Notion(os.environ["NOTION_API_TOKEN"])
 
 # Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +35,7 @@ logger = logging.getLogger(__name__)
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
-    update.message.reply_markdown_v2(
-        fr"Hi {user.mention_markdown_v2()}\!",
-        reply_markup=ForceReply(selective=True),
-    )
+    update.message.reply_markdown_v2(fr"Hi {user.mention_markdown_v2()}\!", reply_markup=ForceReply(selective=True))
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
@@ -65,10 +56,7 @@ def setCommands(updater: Updater) -> None:
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
 
-    commands = [
-        BotCommand("help", "Get help"),
-        BotCommand("start", "Start conversation"),
-    ]
+    commands = [BotCommand("help", "Get help"), BotCommand("start", "Start conversation")]
 
     updater.bot.set_my_commands(commands)
 
@@ -79,9 +67,7 @@ def main() -> None:
     updater = Updater(os.environ["TELEGRAM_BOT_TOKEN"])
 
     # on non command i.e message - echo the message on Telegram
-    updater.dispatcher.add_handler(
-        MessageHandler(Filters.text & ~Filters.command, digest)
-    )
+    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, digest))
 
     setCommands(updater)
 
