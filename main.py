@@ -11,6 +11,7 @@ bot.
 
 import logging
 import os
+import time
 
 from dotenv import load_dotenv
 
@@ -43,10 +44,21 @@ def help_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("Help!")
 
 
-def digest(update: Update, context: CallbackContext) -> None:
-    """Digests messages into Notion GTD inbox"""
+def digest_text(update: Update, context: CallbackContext) -> None:
+    """Digests text messages into Notion GTD inbox"""
     # update.message.reply_text(update.message.text)
     notion.add_page(update.message.text, os.environ["NOTION_DATABASE_ID"])
+
+
+def digest_voice(update: Update, context: CallbackContext) -> None:
+    """Digests voice messages into Notion GTD inbox"""
+    file_id = update.message.voice.file_id
+    print(f"Downloading {file_id}")
+    file = context.bot.get_file(file_id)
+    file_name = f"{time.time()}.ogg"
+    file.download(file_name)
+    print(f"uploading {file_name} to S3")
+    os.remove(file_name)
 
 
 def setCommands(updater: Updater) -> None:
@@ -67,7 +79,8 @@ def main() -> None:
     updater = Updater(os.environ["TELEGRAM_BOT_TOKEN"])
 
     # on non command i.e message - echo the message on Telegram
-    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, digest))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, digest_text))
+    updater.dispatcher.add_handler(MessageHandler(Filters.voice, digest_voice))
 
     setCommands(updater)
 
