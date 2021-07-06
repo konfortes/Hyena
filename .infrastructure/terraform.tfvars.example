@@ -1,0 +1,5 @@
+aws_access_key = ""
+aws_secret_key = ""
+
+bucket_name = "hyena-transcribe"
+environment_tag = "dev"
