@@ -13,6 +13,8 @@ import logging
 import os
 import time
 
+import boto3
+from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
 from notion import Notion
@@ -53,12 +55,20 @@ def digest_text(update: Update, context: CallbackContext) -> None:
 def digest_voice(update: Update, context: CallbackContext) -> None:
     """Digests voice messages into Notion GTD inbox"""
     file_id = update.message.voice.file_id
-    print(f"Downloading {file_id}")
+    logging.info(f"Downloading {file_id}")
     file = context.bot.get_file(file_id)
     file_name = f"{time.time()}.ogg"
     file.download(file_name)
-    print(f"uploading {file_name} to S3")
+    logging.info(f"uploading {file_name} to S3")
+    s3 = boto3.client("s3")
+    try:
+        s3.upload_file(file_name, os.environ["AWS_BUCKET_NAME"], file_name)
+    except ClientError as e:
+        logging.error(e)
+    logging.info(f"removing {file_name} from local disk")
     os.remove(file_name)
+
+    logging.info(f"transcribing...")
 
 
 def setCommands(updater: Updater) -> None:
