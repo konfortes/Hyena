@@ -1,4 +1,4 @@
-# hyena
+# Hyena
 
 ![hyena](./public/hyena.jpeg)
 
