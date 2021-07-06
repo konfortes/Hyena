@@ -1,5 +1,6 @@
-import requests
 import os
+
+import requests
 
 NOTION_API_URL = "https://api.notion.com/v1/pages"
 NOTION_VERSION = "2021-05-13"
@@ -20,11 +21,7 @@ class Notion:
             "Content-Type": "application/json",
         }
 
-        res = requests.post(
-            NOTION_API_URL,
-            json=payload,
-            headers=headers,
-        )
+        res = requests.post(NOTION_API_URL, json=payload, headers=headers)
 
         # TODO: error handling
         print(res.json())

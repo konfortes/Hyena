@@ -7,7 +7,6 @@ import urllib
 import boto3
 from botocore.exceptions import ClientError
 from telegram.bot import Bot
-
 from transcribe import Transcribe
 
 

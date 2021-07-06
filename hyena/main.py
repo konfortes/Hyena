@@ -13,7 +13,6 @@ import logging
 import os
 
 from dotenv import load_dotenv
-
 from notion import Notion
 from voice_handler import VoiceHandler
 
