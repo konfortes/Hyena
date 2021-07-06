@@ -15,3 +15,7 @@ Some env vars should be set in order for the bot to function:
 - `AWS_SECRET_ACCESS_KEY`: required in order to access AWS Transcribe (and S3)
 - `AWS_DEFAULT_REGION`: The default AWS region
 - `AWS_BUCKET_NAME`: The bucket to save the voice files to before transcribing
+
+## Voice Messages Flow
+
+![voice](./public/hyena_voice_flow.png)

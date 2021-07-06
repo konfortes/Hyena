@@ -9,9 +9,11 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
+import json
 import logging
 import os
 import time
+import urllib
 
 import boto3
 from botocore.exceptions import ClientError
@@ -48,7 +50,6 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def digest_text(update: Update, context: CallbackContext) -> None:
     """Digests text messages into Notion GTD inbox"""
-    # update.message.reply_text(update.message.text)
     notion.add_page(update.message.text, os.environ["NOTION_DATABASE_ID"])
 
 
@@ -61,14 +62,40 @@ def digest_voice(update: Update, context: CallbackContext) -> None:
     file.download(file_name)
     logging.info(f"uploading {file_name} to S3")
     s3 = boto3.client("s3")
+    bucket_name = os.environ["AWS_BUCKET_NAME"]
+
     try:
-        s3.upload_file(file_name, os.environ["AWS_BUCKET_NAME"], file_name)
+        s3.upload_file(file_name, bucket_name, file_name)
     except ClientError as e:
         logging.error(e)
+
     logging.info(f"removing {file_name} from local disk")
     os.remove(file_name)
 
     logging.info(f"transcribing...")
+    transcribe = boto3.client("transcribe")
+    job_name = file_name
+    job_uri = f"s3://{bucket_name}/{file_name}"
+
+    transcribe.start_transcription_job(
+        TranscriptionJobName=job_name, Media={"MediaFileUri": job_uri}, MediaFormat="ogg", LanguageCode="en-US"
+    )
+
+    while True:
+        status = transcribe.get_transcription_job(TranscriptionJobName=job_name)
+        if status["TranscriptionJob"]["TranscriptionJobStatus"] in ["COMPLETED", "FAILED"]:
+            break
+        print("Not ready yet...")
+        time.sleep(5)
+
+    logging.info("Done transcribing!")
+
+    if status["TranscriptionJob"]["TranscriptionJobStatus"] == "COMPLETED":
+        logging.info("fetching result url")
+        response = urllib.request.urlopen(status["TranscriptionJob"]["Transcript"]["TranscriptFileUri"])
+        data = json.loads(response.read())
+        text = data["results"]["transcripts"][0]["transcript"]
+        print(text)
 
 
 def setCommands(updater: Updater) -> None:
