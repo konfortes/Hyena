@@ -9,17 +9,13 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import json
 import logging
 import os
-import time
-import urllib
 
-import boto3
-from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
 from notion import Notion
+from voice_handler import VoiceHandler
 
 load_dotenv()
 
@@ -34,13 +30,14 @@ logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
-    update.message.reply_markdown_v2(fr"Hi {user.mention_markdown_v2()}\!", reply_markup=ForceReply(selective=True))
+    update.message.reply_markdown_v2(
+        fr"Hi {user.mention_markdown_v2()}\!", reply_markup=ForceReply(selective=True)
+    )
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
@@ -55,47 +52,15 @@ def digest_text(update: Update, context: CallbackContext) -> None:
 
 def digest_voice(update: Update, context: CallbackContext) -> None:
     """Digests voice messages into Notion GTD inbox"""
-    file_id = update.message.voice.file_id
-    logging.info(f"Downloading {file_id}")
-    file = context.bot.get_file(file_id)
-    file_name = f"{time.time()}.ogg"
-    file.download(file_name)
-    logging.info(f"uploading {file_name} to S3")
-    s3 = boto3.client("s3")
-    bucket_name = os.environ["AWS_BUCKET_NAME"]
+    voice_handler = VoiceHandler(context.bot, update.message)
+    text = voice_handler.handle()
 
-    try:
-        s3.upload_file(file_name, bucket_name, file_name)
-    except ClientError as e:
-        logging.error(e)
+    if text == None or text == "":
+        logging.warning("Unable to handle voice message")
+        return
 
-    logging.info(f"removing {file_name} from local disk")
-    os.remove(file_name)
-
-    logging.info(f"transcribing...")
-    transcribe = boto3.client("transcribe")
-    job_name = file_name
-    job_uri = f"s3://{bucket_name}/{file_name}"
-
-    transcribe.start_transcription_job(
-        TranscriptionJobName=job_name, Media={"MediaFileUri": job_uri}, MediaFormat="ogg", LanguageCode="en-US"
-    )
-
-    while True:
-        status = transcribe.get_transcription_job(TranscriptionJobName=job_name)
-        if status["TranscriptionJob"]["TranscriptionJobStatus"] in ["COMPLETED", "FAILED"]:
-            break
-        print("Not ready yet...")
-        time.sleep(5)
-
-    logging.info("Done transcribing!")
-
-    if status["TranscriptionJob"]["TranscriptionJobStatus"] == "COMPLETED":
-        logging.info("fetching result url")
-        response = urllib.request.urlopen(status["TranscriptionJob"]["Transcript"]["TranscriptFileUri"])
-        data = json.loads(response.read())
-        text = data["results"]["transcripts"][0]["transcript"]
-        print(text)
+    # TODO: Write to Notion
+    print(text)
 
 
 def setCommands(updater: Updater) -> None:
@@ -120,6 +85,8 @@ def main() -> None:
     updater.dispatcher.add_handler(MessageHandler(Filters.voice, digest_voice))
 
     setCommands(updater)
+
+    updater.dispatcher.bot
 
     # Start the Bot
     updater.start_polling()
