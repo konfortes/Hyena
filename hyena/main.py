@@ -58,8 +58,7 @@ def digest_voice(update: Update, context: CallbackContext) -> None:
         logging.warning("Unable to handle voice message")
         return
 
-    # TODO: Write to Notion
-    print(text)
+    notion.add_page(text, os.environ["NOTION_DATABASE_ID"])
 
 
 def setCommands(updater: Updater) -> None:
