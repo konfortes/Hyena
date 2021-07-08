@@ -8,7 +8,10 @@ Hyena is a telegram bot that helps to digest visual and vocal input into Notion'
 
 Some env vars should be set in order for the bot to function:
 
+- `RUN_ENV`: the environment the app runs in [development|production]
+- `PORT`: The port to listen on when using webhook (production)
 - `TELEGRAM_BOT_TOKEN`: The Hyena bot token
+- `TELEGRAM_WEBHOOK_URL`: The URL to register the bot to
 - `NOTION_API_TOKEN`: The Notion token of the Hyena integration
 - `NOTION_DATABASE_ID`: The ID of the inbox database in notion
 - `AWS_ACCESS_KEY_ID`: required in order to access AWS Transcribe (and S3)
