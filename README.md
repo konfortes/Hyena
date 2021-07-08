@@ -6,13 +6,20 @@ Hyena is a telegram bot that helps to digest visual and vocal input into Notion'
 
 ## Run
 
-Hyena will run either in push mode (webhook) or in pull mode (polling) based on the `RUN_ENV` config (production=push)  
-When set to push mode, the env var `TELEGRAM_WEBHOOK_URL` must be supplied and will be used to register the webhook with the bot.
+Hyena will run either in push mode (webhook) or in pull mode (polling) based on the `RUN_ENV` env var (production=push).  
+When set to push mode, the env var `TELEGRAM_WEBHOOK_URL` must be supplied and will be used to register the webhook with the bot.  
+Hyena uses dotenv to load env vars from a `.env` file (see [.env.example](./.env.example) for reference).
 
 ```bash
 pipenv install
 
 python hyena/main.py
+```
+
+### Debug webhook locally
+
+```bash
+pipenv run start-ngrok
 ```
 
 ## Environment Variables
