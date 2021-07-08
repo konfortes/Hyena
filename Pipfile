@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-dotenv = "==0.18.0"
+python-telegram-bot = "==13.7"
+requests = "==2.25.1"
+boto3 = "==1.17.105"
+
+[dev-packages]
+black = "==21.6b0"
+pre-commit = "==2.13.0"
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+start = "python hyena/main.py"
+start-ngrok = "scripts/run-ngrok"
