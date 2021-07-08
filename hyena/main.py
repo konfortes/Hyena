@@ -9,6 +9,7 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
+from hyena.config import get_config
 import logging
 import os
 
@@ -28,6 +29,8 @@ notion = Notion(os.environ["NOTION_API_TOKEN"])
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+config = get_config()
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -87,7 +90,15 @@ def main() -> None:
     updater.dispatcher.bot
 
     # Start the Bot
-    updater.start_polling()
+    if config.env == "development":
+        updater.start_polling()
+    else:
+        updater.start_webhook(
+            listen="0.0.0.0",
+            port=config.port,
+            url_path=config.telegram.bot_token,
+            webhook_url=f"{config.telegram.webhook_url}/{config.telegram.bot_token}",
+        )
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
