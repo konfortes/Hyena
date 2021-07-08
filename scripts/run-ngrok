@@ -5,6 +5,8 @@ set -e
 export PORT=8080
 ngrok http ${PORT} > /dev/null &
 
+sleep 1
+
 export TELEGRAM_WEBHOOK_URL=$(curl -s 'http://127.0.0.1:4040/api/tunnels' | jq -r '.tunnels[0].public_url' | sed -e 's/http:/https:/')
 
 echo "webhook url: $TELEGRAM_WEBHOOK_URL"

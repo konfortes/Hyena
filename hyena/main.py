@@ -9,9 +9,9 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
+import boto3
 from hyena.config import get_config
 import logging
-import os
 
 from dotenv import load_dotenv
 from notion import Notion
@@ -23,14 +23,14 @@ from telegram import ForceReply, Update
 from telegram.bot import BotCommand
 from telegram.ext import CallbackContext, CommandHandler, Filters, MessageHandler, Updater
 
-notion = Notion(os.environ["NOTION_API_TOKEN"])
+config = get_config()
+print(f"WEBHOOK_URL: {config.telegram.webhook_url}")
+
+notion = Notion(config.notion.api_token)
 
 # Enable logging
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
-
 logger = logging.getLogger(__name__)
-
-config = get_config()
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -49,19 +49,21 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def digest_text(update: Update, context: CallbackContext) -> None:
     """Digests text messages into Notion GTD inbox"""
-    notion.add_page(update.message.text, os.environ["NOTION_DATABASE_ID"])
+    notion.add_page(update.message.text, config.notion.database_id)
 
 
 def digest_voice(update: Update, context: CallbackContext) -> None:
     """Digests voice messages into Notion GTD inbox"""
-    voice_handler = VoiceHandler(context.bot, update.message)
+    s3 = boto3.client("s3")
+    transcribe = boto3.client("transcribe")
+    voice_handler = VoiceHandler(context.bot, update.message, s3, transcribe, get_config())
     text = voice_handler.handle()
 
     if text == None or text == "":
         logger.warning("Unable to handle voice message")
         return
 
-    notion.add_page(text, os.environ["NOTION_DATABASE_ID"])
+    notion.add_page(text, config.notion.database_id)
 
 
 def setCommands(updater: Updater) -> None:
@@ -79,7 +81,7 @@ def setCommands(updater: Updater) -> None:
 def main() -> None:
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
-    updater = Updater(os.environ["TELEGRAM_BOT_TOKEN"])
+    updater = Updater(config.telegram.bot_token)
 
     # on non command i.e message - echo the message on Telegram
     updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, digest_text))

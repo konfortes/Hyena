@@ -1,19 +1,20 @@
+from hyena.config import Config
 import logging
 import os
 import time
 
-import boto3
 from botocore.exceptions import ClientError
 from telegram.bot import Bot
 from transcribe import Transcribe
 
 
 class VoiceHandler:
-    def __init__(self, bot, message, s3=None, transcribe=None):
+    def __init__(self, bot: Bot, message, s3, transcribe, config: Config):
         self.bot = bot
         self.message = message
-        self.s3 = s3 if s3 else boto3.client("s3")
-        self.transcribe = transcribe if transcribe else boto3.client("transcribe")
+        self.s3 = s3
+        self.transcribe = transcribe
+        self.config = config
 
         self.logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class VoiceHandler:
             return None
 
         s3_file_name = local_file_name
-        bucket_name = os.environ["AWS_BUCKET_NAME"]
+        bucket_name = self.config.aws.bucket_name
         try:
             self.__upload_to_s3(local_file_name, s3_file_name, bucket_name)
         except ClientError as e:

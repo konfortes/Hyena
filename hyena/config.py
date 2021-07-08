@@ -11,7 +11,9 @@ def get_config():
             bot_token=os.environ["TELEGRAM_BOT_TOKEN"],
             webhook_url=os.getenv("TELEGRAM_WEBHOOK_URL", "localhost"),
         ),
-        notion=NotionConfig(api_token=os.environ["NOTION_API_TOKEN"]),
+        notion=NotionConfig(
+            api_token=os.environ["NOTION_API_TOKEN"], database_id=os.environ["NOTION_DATABASE_ID"]
+        ),
         aws=AWSConfig(
             key_id=os.environ["AWS_ACCESS_KEY_ID"],
             secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
@@ -28,8 +30,9 @@ class TelegramConfig:
 
 
 class NotionConfig:
-    def __init__(self, api_token):
+    def __init__(self, api_token, database_id):
         self.api_token = api_token
+        self.database_id = database_id
 
 
 class AWSConfig:

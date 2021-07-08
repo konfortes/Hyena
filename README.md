@@ -37,6 +37,20 @@ Some env vars should be set in order for the bot to function:
 - `AWS_DEFAULT_REGION`: The default AWS region
 - `AWS_BUCKET_NAME`: The bucket to save the voice files to before transcribing
 
+## Infrastructure
+
+Hyena uses Terraform to provision its AWS infrastructure (S3, ).  
+
+Create a file `terraform.tfvars` (see variables reference in [./infrastructure/terraform.tfvars.example](./.infrastructure/terraform.tfvars.example))
+
+```bash
+tf plan -out=plan.tfplan
+
+# Review plan.tfplan
+
+tf apply "plan.tfplan"
+```
+
 ## Voice Messages Flow
 
 ![voice](./public/hyena_voice_flow.png)
