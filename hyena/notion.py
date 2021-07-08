@@ -1,4 +1,4 @@
-import os
+import logging
 
 import requests
 
@@ -9,6 +9,7 @@ NOTION_VERSION = "2021-05-13"
 class Notion:
     def __init__(self, token: str):
         self.token = token
+        self.logger = logging.getLogger(__name__)
 
     def add_page(self, content: str, parentDatabase: str):
         payload = {

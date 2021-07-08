@@ -55,7 +55,7 @@ def digest_voice(update: Update, context: CallbackContext) -> None:
     text = voice_handler.handle()
 
     if text == None or text == "":
-        logging.warning("Unable to handle voice message")
+        logger.warning("Unable to handle voice message")
         return
 
     notion.add_page(text, os.environ["NOTION_DATABASE_ID"])
