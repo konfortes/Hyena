@@ -34,18 +34,25 @@ class Transcribe:
 
         if status and status["TranscriptionJob"]["TranscriptionJobStatus"] == "COMPLETED":
             self.logger.info("fetching result url")
-            response = urllib.request.urlopen(status["TranscriptionJob"]["Transcript"]["TranscriptFileUri"])
+            response = urllib.request.urlopen(
+                status["TranscriptionJob"]["Transcript"]["TranscriptFileUri"]
+            )
             data = json.loads(response.read())
             text = data["results"]["transcripts"][0]["transcript"]
             return text
         else:
-            self.logger.warn(f"Transcription job {job_name} finished with FAILED status. status: {status}")
+            self.logger.warn(
+                f"Transcription job {job_name} finished with FAILED status. status: {status}"
+            )
 
     def __wait_for_job(self, job_name: str):
         self.logger.info("Waiting for transcribe result")
         while True:
             status = self.client.get_transcription_job(TranscriptionJobName=job_name)
-            if status["TranscriptionJob"]["TranscriptionJobStatus"] in ["COMPLETED", "FAILED"]:
+            if status["TranscriptionJob"]["TranscriptionJobStatus"] in [
+                "COMPLETED",
+                "FAILED",
+            ]:
                 break
             self.logger.debug("Not ready yet")
             time.sleep(5)
