@@ -9,13 +9,14 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import boto3
-from hyena.config import get_config
 import logging
 
+import boto3
 from dotenv import load_dotenv
 from notion import Notion
 from voice_handler import VoiceHandler
+
+from hyena.config import get_config
 
 load_dotenv()
 
@@ -24,12 +25,13 @@ from telegram.bot import BotCommand
 from telegram.ext import CallbackContext, CommandHandler, Filters, MessageHandler, Updater
 
 config = get_config()
-print(f"WEBHOOK_URL: {config.telegram.webhook_url}")
 
 notion = Notion(config.notion.api_token)
 
 # Enable logging
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -56,7 +58,9 @@ def digest_voice(update: Update, context: CallbackContext) -> None:
     """Digests voice messages into Notion GTD inbox"""
     s3 = boto3.client("s3")
     transcribe = boto3.client("transcribe")
-    voice_handler = VoiceHandler(context.bot, update.message, s3, transcribe, get_config())
+    voice_handler = VoiceHandler(
+        context.bot, update.message, s3, transcribe, get_config()
+    )
     text = voice_handler.handle()
 
     if text == None or text == "":
@@ -84,7 +88,9 @@ def main() -> None:
     updater = Updater(config.telegram.bot_token)
 
     # on non command i.e message - echo the message on Telegram
-    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, digest_text))
+    updater.dispatcher.add_handler(
+        MessageHandler(Filters.text & ~Filters.command, digest_text)
+    )
     updater.dispatcher.add_handler(MessageHandler(Filters.voice, digest_voice))
 
     setCommands(updater)
