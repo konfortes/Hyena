@@ -4,7 +4,7 @@
 
 [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/konfortes/Hyena)
 
-Hyena is a telegram bot that helps to digest visual and vocal input into Notion's GTD inbox.
+Hyena is a Telegram bot that helps to digest visual and vocal input into Notion's GTD inbox.
 
 ## Run
 
