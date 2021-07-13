@@ -2,12 +2,14 @@
 
 ![hyena](./public/hyena.jpeg)
 
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/konfortes/Hyena)
+
 Hyena is a telegram bot that helps to digest visual and vocal input into Notion's GTD inbox.
 
 ## Run
 
-Hyena will run either in push mode (webhook) or in pull mode (polling) based on the `RUN_ENV` env var (production=push).  
-When set to push mode, the env var `TELEGRAM_WEBHOOK_URL` must be supplied and will be used to register the webhook with the bot.  
+Hyena will run either in push mode (webhook) or in pull mode (polling) based on the `RUN_ENV` env var (production=push).
+When set to push mode, the env var `TELEGRAM_WEBHOOK_URL` must be supplied and will be used to register the webhook with the bot.
 Hyena uses dotenv to load env vars from a `.env` file (see [.env.example](./.env.example) for reference).
 
 ```bash
@@ -39,7 +41,7 @@ Some env vars should be set in order for the bot to function:
 
 ## Infrastructure
 
-Hyena uses Terraform to provision its AWS infrastructure (S3, ).  
+Hyena uses Terraform to provision its AWS infrastructure (S3, ).
 
 Create a file `terraform.tfvars` (see variables reference in [./infrastructure/terraform.tfvars.example](./.infrastructure/terraform.tfvars.example))
 
